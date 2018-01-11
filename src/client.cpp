@@ -1,14 +1,8 @@
+#include "Networking.h"
 #include <iostream>
-#include <udt/udt.h>
-#include <arpa/inet.h>
 #include <cstring>
 #include <unistd.h>
-#include <cstdlib>
-#include <netdb.h>
-#include <iostream>
-#include <udt/ccc.h>
 
-void* monitor(void*);
 
 int main(int argc, char* argv[]) {
 
@@ -17,44 +11,17 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    struct addrinfo hints, *local, *server;
-    memset(&hints, 0, sizeof(hints));
+    Networking net = Networking();
 
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-
-    if (0 != getaddrinfo(nullptr, "9000", &hints, &local)) {
-        std::cout << "[error] :: incorrect local address.\n" << std::endl;
+    if(net.connectToServer(*argv[1], *argv[2])) {
         return -1;
     }
 
-    UDTSOCKET sock = UDT::socket(local->ai_family, local->ai_socktype, local->ai_protocol);
-
-    freeaddrinfo(local);
-
-    if (0 != getaddrinfo(argv[1], argv[2], &hints, &server)) {
-        std::cout << "[error] :: incorrect server address: " << argv[1] << ":" << argv[2] << std::endl;
+    char *data = (char*) "Hello World";
+    if(net.sendData(*data)) {
         return -1;
     }
 
-    if (UDT::ERROR == UDT::connect(sock, server->ai_addr, server->ai_addrlen)) {
-        std::cout << "[error] :: connecting: " << UDT::getlasterror().getErrorMessage() << std::endl;
-        return -1;
-    }
-
-    freeaddrinfo(server);
-
-    char *data = (char*) "Hello World\n";
-
-    if( UDT::ERROR == UDT::send(sock, data, 13*sizeof(char), 0)) {
-        std::cout << "[error] :: send:" << UDT::getlasterror().getErrorMessage() << std::endl;
-        return -1;
-    }
-
-    UDT::close(sock);
-
-    std::cout << "[statu] :: success" << std::endl;
     return 0;
 }
 

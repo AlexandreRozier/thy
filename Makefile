@@ -136,6 +136,36 @@ Server.out/fast:
 	$(MAKE) -f CMakeFiles/Server.out.dir/build.make CMakeFiles/Server.out.dir/build
 .PHONY : Server.out/fast
 
+src/Networking.o: src/Networking.cpp.o
+
+.PHONY : src/Networking.o
+
+# target to build an object file
+src/Networking.cpp.o:
+	$(MAKE) -f CMakeFiles/Client.out.dir/build.make CMakeFiles/Client.out.dir/src/Networking.cpp.o
+	$(MAKE) -f CMakeFiles/Server.out.dir/build.make CMakeFiles/Server.out.dir/src/Networking.cpp.o
+.PHONY : src/Networking.cpp.o
+
+src/Networking.i: src/Networking.cpp.i
+
+.PHONY : src/Networking.i
+
+# target to preprocess a source file
+src/Networking.cpp.i:
+	$(MAKE) -f CMakeFiles/Client.out.dir/build.make CMakeFiles/Client.out.dir/src/Networking.cpp.i
+	$(MAKE) -f CMakeFiles/Server.out.dir/build.make CMakeFiles/Server.out.dir/src/Networking.cpp.i
+.PHONY : src/Networking.cpp.i
+
+src/Networking.s: src/Networking.cpp.s
+
+.PHONY : src/Networking.s
+
+# target to generate assembly for a file
+src/Networking.cpp.s:
+	$(MAKE) -f CMakeFiles/Client.out.dir/build.make CMakeFiles/Client.out.dir/src/Networking.cpp.s
+	$(MAKE) -f CMakeFiles/Server.out.dir/build.make CMakeFiles/Server.out.dir/src/Networking.cpp.s
+.PHONY : src/Networking.cpp.s
+
 src/client.o: src/client.cpp.o
 
 .PHONY : src/client.o
@@ -200,6 +230,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... Client.out"
 	@echo "... Server.out"
+	@echo "... src/Networking.o"
+	@echo "... src/Networking.i"
+	@echo "... src/Networking.s"
 	@echo "... src/client.o"
 	@echo "... src/client.i"
 	@echo "... src/client.s"

@@ -22,7 +22,7 @@ class Networking {
     * @param port of the server to connect to
     * @return 0 iff successful
     */
-    int connectToServer(const char &addr, const char &port);
+    int connectTo(const char &addr, const char &port);
 
     /**
      * Sends data over the socket
@@ -32,8 +32,13 @@ class Networking {
      */
     int sendData(const char &data);
 
+    int listen(const int port);
+
+    int connectionHandler();
   private:
     UDTSOCKET socket;
 };
+
+void* recvdata(void* usocket);
 
 #endif //THY_NETWORKING_H

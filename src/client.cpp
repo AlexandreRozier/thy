@@ -3,24 +3,28 @@
 #include <cstring>
 #include <unistd.h>
 
-
 int main(int argc, char* argv[]) {
 
-    if ((3 != argc) || (0 == atoi(argv[2]))) {
-        std::cout << "[usage] :: " << argv[0] << " serverIp serverPort" << std::endl;
+    if (argc > 2) {
+        std::cout << "[usage] :: " << argv[0] << " [serverIp]" << std::endl;
         return -1;
     }
+
+    std::string server;
+    argc == 1 ? server = "ec2-18-220-56-40.us-east-2.compute.amazonaws.com" : server = argv[1];
 
     Networking net = Networking();
 
-    if(net.connectToServer(*argv[1], *argv[2])) {
+    std::string port("9009");
+    if(net.connectTo(*server.c_str(), *port.c_str())) {
         return -1;
     }
 
-    char *data = (char*) "Hello World";
-    if(net.sendData(*data)) {
+    std::string data("Hello World");
+    if(net.sendData(*data.c_str())) {
         return -1;
     }
+
 
     return 0;
 }

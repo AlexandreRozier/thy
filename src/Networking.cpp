@@ -5,27 +5,31 @@
 #include "Networking.h"
 #include <iostream>
 #include <cstring>
+#include <cstring>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 Networking::Networking() {
+    UDT::startup();
     createSocket(&this->socket);
 }
 
 Networking::~Networking() {
     std::cout << "[netwo] :: closing the socket" << std::endl;
     UDT::close(this->socket);
+    UDT::cleanup();
 }
 
 int Networking::createSocket(UDTSOCKET *socket) {
 
-    struct addrinfo hints, *local;
+    struct addrinfo hints{}, *local;
     memset(&hints, 0, sizeof(hints));
 
     hints.ai_flags = AI_PASSIVE;
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
-    if (0 != getaddrinfo(nullptr, "9000", &hints, &local)) {
+    if (0 != getaddrinfo(nullptr, "9009", &hints, &local)) {
         std::cout << "[error] :: incorrect local address" << std::endl;
         return -1;
     }
@@ -38,9 +42,9 @@ int Networking::createSocket(UDTSOCKET *socket) {
     return 0;
 }
 
-int Networking::connectToServer(const char &addr, const char &port) {
+int Networking::connectTo(const char &addr, const char &port) {
 
-    struct addrinfo hints, *server;
+    struct addrinfo hints{}, *server;
     memset(&hints, 0, sizeof(hints));
 
     hints.ai_flags = AI_PASSIVE;
@@ -72,3 +76,97 @@ int Networking::sendData(const char &data) {
     return 0;
 }
 
+int Networking::listen(const int port) {
+
+    addrinfo hints{}, *local;
+    memset(&hints, 0, sizeof(hints));
+
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if (0 != getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &local)) {
+        std::cout << "[error] :: illegal port number or port is busy" << std::endl;
+        return -1;
+    }
+
+    if (UDT::ERROR == UDT::bind(this->socket, local->ai_addr, local->ai_addrlen)) {
+        std::cout << "[error] :: bind: " << UDT::getlasterror().getErrorMessage() << std::endl;
+        return -1;
+    }
+
+    freeaddrinfo(local);
+
+    if (UDT::ERROR == UDT::listen(this->socket, 10)) {
+        std::cout << "[error] :: listen: " << UDT::getlasterror().getErrorMessage() << std::endl;
+        return -1;
+    }
+
+    std::cout << "[netwo] :: listening on: " << port << std::endl;
+
+    return 0;
+}
+
+int Networking::connectionHandler() {
+
+    while (true) {
+        sockaddr_storage clientaddr{};
+        int addrlen = sizeof(clientaddr);
+
+        UDTSOCKET recver;
+        if (UDT::INVALID_SOCK == (recver = UDT::accept(this->socket, (sockaddr*)&clientaddr, &addrlen))) {
+            std::cout << "accept: " << UDT::getlasterror().getErrorMessage() << std::endl;
+            return 0;
+        }
+
+        char clienthost[NI_MAXHOST];
+        char clientservice[NI_MAXSERV];
+        getnameinfo((sockaddr *)&clientaddr, addrlen, clienthost, sizeof(clienthost), clientservice, sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
+        std::cout << "new connection: " << clienthost << ":" << clientservice << std::endl;
+
+        pthread_t rcvthread;
+        pthread_create(&rcvthread, nullptr, recvdata, new UDTSOCKET(recver));
+        pthread_detach(rcvthread);
+    }
+
+    return 0;
+}
+
+void* recvdata(void* usocket) {
+    UDTSOCKET recver = *(UDTSOCKET*)usocket;
+    delete (UDTSOCKET*)usocket;
+    char data[100];
+
+    if (UDT::ERROR == UDT::recv(recver, data, 100, 0)) {
+        std::cout << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
+    }
+
+    std::cout << "[outpu] :: " << data << std::endl;
+    return nullptr;
+}
+
+
+
+
+    /*
+
+    int namelen;
+    sockaddr_in blub{};
+
+    UDTSOCKET recv = UDT::accept(this->socket, (sockaddr*)&blub, &namelen);
+
+    std::cout << "[netwo] :: connection accepted: " << inet_ntoa(blub.sin_addr) << ":" << ntohs(blub.sin_port) << std::endl;
+
+    char data[100];
+
+    if (UDT::ERROR == UDT::recv(recv, data, 100, 0)) {
+        std::cout << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
+        return 0;
+    }
+
+    std::cout << "[outpu] :: " << data << std::endl;
+
+    UDT::close(recv);
+    return 0;
+}
+     */

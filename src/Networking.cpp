@@ -1,7 +1,13 @@
+//
+// Created by thyriaen on 11/01/18.
+//
+
 #include "Networking.h"
 #include <iostream>
 #include <cstring>
+#include <cstring>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 Networking::Networking() {
     UDT::startup();

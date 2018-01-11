@@ -1,4 +1,8 @@
 #include "Networking.h"
+#include <iostream>
+#include <cstring>
+#include <netdb.h>
+#include <udt/udt.h>
 
 void* recvdata(void* usocket);
 

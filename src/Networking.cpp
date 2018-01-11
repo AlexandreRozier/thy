@@ -110,22 +110,23 @@ int Networking::listen(const int port) {
 int Networking::connectionHandler() {
 
     while (true) {
-        sockaddr_storage clientaddr{};
-        int addrlen = sizeof(clientaddr);
+        sockaddr_storage client{};
+        int addrlen = sizeof(client);
 
-        UDTSOCKET recver;
-        if (UDT::INVALID_SOCK == (recver = UDT::accept(this->socket, (sockaddr*)&clientaddr, &addrlen))) {
-            std::cout << "accept: " << UDT::getlasterror().getErrorMessage() << std::endl;
+        UDTSOCKET recv;
+        if (UDT::INVALID_SOCK == (recv = UDT::accept(this->socket, (sockaddr*)&client, &addrlen))) {
+            std::cout << "[error] :: accept: " << UDT::getlasterror().getErrorMessage() << std::endl;
             return 0;
         }
 
         char clienthost[NI_MAXHOST];
         char clientservice[NI_MAXSERV];
-        getnameinfo((sockaddr *)&clientaddr, addrlen, clienthost, sizeof(clienthost), clientservice, sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
-        std::cout << "new connection: " << clienthost << ":" << clientservice << std::endl;
+        getnameinfo((sockaddr *)&client, addrlen, clienthost, sizeof(clienthost), clientservice,
+                    sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
+        std::cout << "[netwo] :: new connection: " << clienthost << ":" << clientservice << std::endl;
 
         pthread_t rcvthread;
-        pthread_create(&rcvthread, nullptr, recvdata, new UDTSOCKET(recver));
+        pthread_create(&rcvthread, nullptr, recvdata, new UDTSOCKET(recv));
         pthread_detach(rcvthread);
     }
 
@@ -138,35 +139,9 @@ void* recvdata(void* usocket) {
     char data[100];
 
     if (UDT::ERROR == UDT::recv(recver, data, 100, 0)) {
-        std::cout << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
+        std::cout << "[error] :: receive:" << UDT::getlasterror().getErrorMessage() << std::endl;
     }
 
     std::cout << "[outpu] :: " << data << std::endl;
     return nullptr;
 }
-
-
-
-
-    /*
-
-    int namelen;
-    sockaddr_in blub{};
-
-    UDTSOCKET recv = UDT::accept(this->socket, (sockaddr*)&blub, &namelen);
-
-    std::cout << "[netwo] :: connection accepted: " << inet_ntoa(blub.sin_addr) << ":" << ntohs(blub.sin_port) << std::endl;
-
-    char data[100];
-
-    if (UDT::ERROR == UDT::recv(recv, data, 100, 0)) {
-        std::cout << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
-        return 0;
-    }
-
-    std::cout << "[outpu] :: " << data << std::endl;
-
-    UDT::close(recv);
-    return 0;
-}
-     */

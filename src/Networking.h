@@ -32,7 +32,12 @@ class Networking {
      */
     int sendData(const char &data);
 
-    int listen(const int port);
+    /**
+     * binds the socket and listens on given port
+     * @param port to listen on
+     * @return 0 iff successful
+     */
+    int listen(int port);
 
     int connectionHandler();
   private:

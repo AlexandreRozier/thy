@@ -19,13 +19,18 @@ void* recvdata(void* usocket) {
     UDTSOCKET recver = *(UDTSOCKET*)usocket;
     delete (UDTSOCKET*)usocket;
 
-    char data[100] = {};
+    std::string sentData("First");
 
-    if (UDT::ERROR == UDT::recv(recver, data, 100, 0)) {
-        std::cout << "[error] :: receive:" << UDT::getlasterror().getErrorMessage() << std::endl;
+    std::cout << "[outpu] :: ";
+    while(sentData.length() > 1) {
+        char data[5] = {};
+        if (UDT::ERROR == UDT::recv(recver, data, 5, 0)) {
+            std::cout << "[error] :: receive:" << UDT::getlasterror().getErrorMessage() << std::endl;
+        }
+        sentData = data;
+        std::cout << sentData;
     }
-
-    std::cout << "[outpu] :: " << data << std::endl;
+    std::cout <<  std::endl;
     return nullptr;
 }
 

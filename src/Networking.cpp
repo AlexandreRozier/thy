@@ -101,9 +101,8 @@ int Networking::listen(const int port) {
     return 0;
 }
 
-int Networking::connectionHandler() {
+int Networking::connectionHandler(void* function(void*)) {
 
-    while (true) {
         sockaddr_storage client{};
         int addrlen = sizeof(client);
 
@@ -120,22 +119,9 @@ int Networking::connectionHandler() {
         std::cout << "[netwo] :: new connection: " << clienthost << ":" << clientservice << std::endl;
 
         pthread_t rcvthread;
-        pthread_create(&rcvthread, nullptr, recvdata, new UDTSOCKET(recv));
+        pthread_create(&rcvthread, nullptr, function, new UDTSOCKET(recv));
         pthread_detach(rcvthread);
-    }
 
     return 0;
 }
 
-void* recvdata(void* usocket) {
-    UDTSOCKET recver = *(UDTSOCKET*)usocket;
-    delete (UDTSOCKET*)usocket;
-    char data[100];
-
-    if (UDT::ERROR == UDT::recv(recver, data, 100, 0)) {
-        std::cout << "[error] :: receive:" << UDT::getlasterror().getErrorMessage() << std::endl;
-    }
-
-    std::cout << "[outpu] :: " << data << std::endl;
-    return nullptr;
-}

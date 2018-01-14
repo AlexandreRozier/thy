@@ -11,12 +11,26 @@ int main() {
     Networking net = Networking();
     net.listen(9009);
 
-    net.connectionHandler();
+    while(true) {
+        net.connectionHandler(recvdata);
+    }
 
     return 0;
 }
 
+void* recvdata(void* usocket) {
+    UDTSOCKET recver = *(UDTSOCKET*)usocket;
+    delete (UDTSOCKET*)usocket;
 
+    char data[100];
+
+    if (UDT::ERROR == UDT::recv(recver, data, 100, 0)) {
+        std::cout << "[error] :: receive:" << UDT::getlasterror().getErrorMessage() << std::endl;
+    }
+
+    std::cout << "[outpu] :: " << data << std::endl;
+    return nullptr;
+}
 
 /*
 void* recvdata(void* usocket) {

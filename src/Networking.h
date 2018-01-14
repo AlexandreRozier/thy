@@ -39,7 +39,7 @@ class Networking {
      */
     int listen(int port);
 
-    int connectionHandler();
+    int connectionHandler(void *function(void*));
   private:
     UDTSOCKET socket;
 };

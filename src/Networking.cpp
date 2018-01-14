@@ -62,7 +62,7 @@ int Networking::connectTo(const char &addr, const char &port) {
 }
 
 int Networking::sendData(const char &data) {
-    if( UDT::ERROR == UDT::send(this->socket, &data, 12*sizeof(char), 0)) {
+    if( UDT::ERROR == UDT::send(this->socket, &data, (int)strlen(&data)*sizeof(data), 0)) {
         std::cout << "[error] :: send:" << UDT::getlasterror().getErrorMessage() << std::endl;
         return -1;
     }
@@ -101,15 +101,16 @@ int Networking::listen(const int port) {
     return 0;
 }
 
-int Networking::connectionHandler(void* function(void*)) {
+void Networking::connectionHandler(void* function(void*)) {
 
+    while(true) {
         sockaddr_storage client{};
         int addrlen = sizeof(client);
 
         UDTSOCKET recv;
         if (UDT::INVALID_SOCK == (recv = UDT::accept(this->socket, (sockaddr*)&client, &addrlen))) {
             std::cout << "[error] :: accept: " << UDT::getlasterror().getErrorMessage() << std::endl;
-            return 0;
+            return;
         }
 
         char clienthost[NI_MAXHOST];
@@ -121,7 +122,7 @@ int Networking::connectionHandler(void* function(void*)) {
         pthread_t rcvthread;
         pthread_create(&rcvthread, nullptr, function, new UDTSOCKET(recv));
         pthread_detach(rcvthread);
+    }
 
-    return 0;
 }
 

@@ -17,7 +17,6 @@ class Networking {
 
     /**
     * Connects to a server on a socket
-    * @param socket reference to a socket
     * @param addr of the server to connect to
     * @param port of the server to connect to
     * @return 0 iff successful
@@ -26,7 +25,6 @@ class Networking {
 
     /**
      * Sends data over the socket
-     * @param socket has to be connected already
      * @param data reference to a char array
      * @return 0 iff successful
      */
@@ -39,7 +37,7 @@ class Networking {
      */
     int listen(int port);
 
-    int connectionHandler(void *function(void*));
+    void connectionHandler(void *function(void*));
   private:
     UDTSOCKET socket;
 };

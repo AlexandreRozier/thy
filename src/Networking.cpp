@@ -115,7 +115,7 @@ void Networking::connectionHandler(void* function(void*)) {
 
         char clienthost[NI_MAXHOST];
         char clientservice[NI_MAXSERV];
-        getnameinfo((sockaddr *)&client, addrlen, clienthost, sizeof(clienthost), clientservice,
+        getnameinfo((sockaddr *)&client, (socklen_t) addrlen, clienthost, sizeof(clienthost), clientservice,
                     sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
         std::cout << "[netwo] :: new connection: " << clienthost << ":" << clientservice << std::endl;
 

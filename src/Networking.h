@@ -37,6 +37,10 @@ class Networking {
      */
     int listen(int port);
 
+    /**
+     * calls the function whenever it accepts a new connection
+     * @param function to call on new connection
+     */
     void connectionHandler(void *function(void*));
   private:
     UDTSOCKET socket;
